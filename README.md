@@ -26,3 +26,16 @@ ADISE19_ProjectDry is a card game written in php.
 ├── dry.php
 └── index.html
 ```
+
+## API Overview
+
+| URI | Method | Description | Return status |
+| :-- | :----- | :---------- | :------------ |
+| `/board` | **GET** | Gets the current board status. | *200(OK), 400(Bad Request)* |
+| `/board` | **POST** | Resets the board and returns the current board status. | *200(OK), 400(Bad Request)* |
+| `/board/card/{c}` | **GET** | Gets the current status of card {c}. | *200(OK), 400(Bad Request)* |
+| `/board/card/{c}` | **PUT** | Moves the card {c} from a hand to the table. | *200(OK), 400(Bad Request)* |
+| `/players` | **GET** | Gets all players' data. | *200(OK), 400(Bad Request)* |
+| `/players/{p}` | **GET** | Gets the username of player {p}. | *200(OK), 400(Bad Request)* |
+| `/players/{p}` | **PUT** | Sets the username of player {p}. | *200(OK), 400(Bad Request)* |
+| `/status` | **GET** | Gets the game status. | *200(OK), 400(Bad Request)* |
