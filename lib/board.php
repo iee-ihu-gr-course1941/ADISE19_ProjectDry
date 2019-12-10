@@ -14,7 +14,7 @@ $round=1;
 function show_board() {
 	global $mysqli;
 	
-	$sql = 'select * from board';
+	$sql = "select * from board where c_position in('hand1','stack')";
 	$st = $mysqli->prepare($sql);
 	$st->execute();
 	$res = $st->get_result();
