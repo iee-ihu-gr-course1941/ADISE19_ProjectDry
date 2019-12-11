@@ -3,6 +3,7 @@
 require_once "lib/dbconnect.php";
 require_once "lib/board.php";
 require_once "lib/game.php";
+require_once "lib/users.php";
 
 $method = $_SERVER['REQUEST_METHOD']; #gets the request method
 $request = explode('/', trim($_SERVER['PATH_INFO'],'/')); #returns an array of the input between the '/' of the url path
@@ -33,13 +34,14 @@ switch ($r=array_shift($request)) {
                         case null:
                                 handle_players($method);
                                 break;
-                        case 1:
-                        case 2:
-                                handle_user($method, $b, $input);
-                                break;
+                        //case 1:
+                        //case 2:
+                        //        handle_user($method, $b, $input);
+                        //        break;
                         default:
-                                header("HTTP/1.1 404 Not Found");
-                                print json_encode(['errormesg'=>"Player $b not found."]);
+                                //header("HTTP/1.1 404 Not Found");
+                                //print json_encode(['errormesg'=>"Player $b not found."]);
+                                handle_user($method, $b, $input);
                                 break;
                 }
                 break;

@@ -25,8 +25,18 @@ function fill_board_by_data(data) {
 }
 
 function login_to_game() {
-	if($('#username').val()=='') {
+	var username = $('#username').val();
+	if(username=='') {
 		alert('You have to set a username');
 		return;
 	}
+	$.ajax({url: "dry.php/players/"+username,
+			method: 'PUT',
+			dataType: "json",
+			data: JSON.stringify({username: username}),
+			success: login_result});
+}
+
+function login_result(data) {
+	$('#loginForm').hide();
 }
