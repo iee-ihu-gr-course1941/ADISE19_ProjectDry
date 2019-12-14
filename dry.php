@@ -34,14 +34,8 @@ switch ($r=array_shift($request)) {
                         case null:
                                 handle_players($method);
                                 break;
-                        //case 1:
-                        //case 2:
-                        //        handle_user($method, $b, $input);
-                        //        break;
                         default:
-                                //header("HTTP/1.1 404 Not Found");
-                                //print json_encode(['errormesg'=>"Player $b not found."]);
-                                handle_user($method, $b, $input);
+                                handle_user($method, $b);
                                 break;
                 }
                 break;
@@ -55,7 +49,7 @@ switch ($r=array_shift($request)) {
 
 function handle_board($method) {
         if($method=='GET')
-                show_board();
+                shoq_board();
         else if ($method=='POST')
                 reset_board();
         else {
@@ -73,7 +67,7 @@ function handle_players($method) {
         }
 }
 
-function handle_user($method, $b, $input) {
+function handle_user($method, $b) {
         if($method=='GET')
                 show_user($b);
         else if($method=='PUT')
