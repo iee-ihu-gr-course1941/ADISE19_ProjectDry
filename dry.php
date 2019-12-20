@@ -17,6 +17,9 @@ switch ($r=array_shift($request)) {
                         case null:
                                 handle_board($method);
                                 break;
+                        case 'card':
+                                handle_card($method, $request[0]);
+                                break;
                         default:
                                 header("HTTP/1.1 404 Not Found");
                                 break;
@@ -49,7 +52,7 @@ switch ($r=array_shift($request)) {
 
 function handle_board($method) {
         if($method=='GET')
-                shoq_board();
+                show_board();
         else if ($method=='POST')
                 reset_board();
         else {
@@ -71,11 +74,15 @@ function handle_user($method, $b) {
         if($method=='GET')
                 show_user($b);
         else if($method=='PUT')
-                set_user($b,$input);
+                set_user($b);
         else {
                 header("HTTP/1.1 400 Bad Request");
                 print json_encode(['errormesg'=>"Method $method not allowed."]);
         }
+}
+
+function handle_card($method, $x, $input) {
+        //
 }
 
 ?>

@@ -42,9 +42,11 @@ function shuffle_deck() {
 
 function deal_cards() {
 	global $mysqli;
-	
-	//$sql = 'call deal_cards(n,position)';
-	//$mysqli->query($sql);
+
+	shuffle_deck();
+	$sql = "call deal_cards(6,'hand1')";
+	$mysqli->query($sql);
+	show_board();
 }
 
 ?>
