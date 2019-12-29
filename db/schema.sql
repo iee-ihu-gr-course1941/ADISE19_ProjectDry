@@ -54,6 +54,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `play_card` (`c_id` TINYINT)  BEGIN
 	UPDATE board
 	SET c_position='stack'
 	WHERE card_id=c_id;
+	UPDATE game_status
+	SET p_turn=if(p_turn=1,2,1);
     END$$
 
 DELIMITER ;
