@@ -9,7 +9,7 @@ $cards = array(1,2,3,4,5,6,7,8,9,10,11,12,13,
 
 //function implementation
 
-function show_board() {
+function show_board() { #show cards of viewer's hand and stack
 	global $mysqli;
 	
 	$sql = "select * from board where c_position in('hand1','stack')";
@@ -28,7 +28,7 @@ function reset_board() {
 	show_board();
 }
 
-function shuffle_deck() {
+function shuffle_deck() { #set card order according to shuffled $cards array
 	global $mysqli;
 	global $cards;
 	shuffle($cards);
@@ -47,6 +47,22 @@ function deal_cards() {
 	$sql = "call deal_cards(6,'hand1')";
 	$mysqli->query($sql);
 	show_board();
+}
+
+function play_card($x,$token) { #play card with id $x
+	global $mysqli;
+
+	if($token==null || $token=='') {
+		header("HTTP/1.1 400 Bad Request");
+		print json_encode(['errormesg'=>"Token is not set."]);
+		exit;
+	}
+
+	$sql = 'call play_card(?);';
+	$st = $mysqli->prepare($sql);
+	$st->bind_param('i',$x);
+	$st->execute();
+
 }
 
 ?>

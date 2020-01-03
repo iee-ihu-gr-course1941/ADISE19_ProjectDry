@@ -3,7 +3,6 @@
 -- https://www.phpmyadmin.net/
 --
 -- Φιλοξενητής: 127.0.0.1
--- Χρόνος δημιουργίας: 15 Δεκ 2019 στις 16:42:58
 -- Έκδοση διακομιστή: 10.4.8-MariaDB
 -- Έκδοση PHP: 7.3.10
 
@@ -21,8 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Βάση δεδομένων: `project_db`
 --
-CREATE DATABASE IF NOT EXISTS `project_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
-USE `project_db`;
 
 DELIMITER $$
 --
@@ -31,22 +28,13 @@ DELIMITER $$
 DROP PROCEDURE IF EXISTS `clean_board`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `clean_board` ()  BEGIN
 	REPLACE INTO board SELECT * FROM board_empty;
-    UPDATE players SET username=null, token=null;
-    UPDATE game_status SET `status`='not active', p_turn=null, result=null;
     END$$
 
-DROP PROCEDURE IF EXISTS `deal_cards`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `deal_cards` (IN `n` TINYINT, IN `position` VARCHAR(5))  BEGIN
+DROP PROCEDURE IF EXISTS `deal_card`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `deal_card` (`c_id` TINYINT, `position` VARCHAR(5))  BEGIN
 	UPDATE board
 	SET c_position=position
-	WHERE card_id IN
-	(SELECT b.card_id
-	FROM board as b
-	INNER JOIN (SELECT card_id
-				FROM board
-				ORDER BY c_order
-				LIMIT n) as b2
-	ON b.card_id=b2.card_id);
+	WHERE card_id=c_id;
     END$$
 
 DROP PROCEDURE IF EXISTS `play_card`$$
@@ -55,7 +43,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `play_card` (`c_id` TINYINT)  BEGIN
 	SET c_position='stack'
 	WHERE card_id=c_id;
 	UPDATE game_status
-	SET p_turn=if(p_turn=1,2,1);
+    	SET p_turn=if(p_turn=1,2,1);
     END$$
 
 DELIMITER ;
@@ -71,67 +59,66 @@ CREATE TABLE `board` (
   `card_id` tinyint(4) NOT NULL,
   `c_value` tinyint(4) NOT NULL,
   `c_score` tinyint(4) NOT NULL,
-  `c_position` enum('deck','stack','hand1','hand2','won1','won2') COLLATE utf8mb4_bin NOT NULL DEFAULT 'deck',
-  `c_order` tinyint(4) DEFAULT NULL
+  `c_position` enum('deck','stack','hand1','hand2','won1','won2') COLLATE utf8mb4_bin NOT NULL DEFAULT 'deck'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 --
 -- Άδειασμα δεδομένων του πίνακα `board`
 --
 
-INSERT INTO `board` (`card_id`, `c_value`, `c_score`, `c_position`, `c_order`) VALUES
-(1, 1, 1, 'deck', NULL),
-(2, 2, 0, 'deck', NULL),
-(3, 3, 0, 'deck', NULL),
-(4, 4, 0, 'deck', NULL),
-(5, 5, 0, 'deck', NULL),
-(6, 6, 0, 'deck', NULL),
-(7, 7, 0, 'deck', NULL),
-(8, 8, 0, 'deck', NULL),
-(9, 9, 0, 'deck', NULL),
-(10, 10, 1, 'deck', NULL),
-(11, 11, 1, 'deck', NULL),
-(12, 12, 1, 'deck', NULL),
-(13, 13, 1, 'deck', NULL),
-(14, 1, 1, 'deck', NULL),
-(15, 2, 0, 'deck', NULL),
-(16, 3, 0, 'deck', NULL),
-(17, 4, 0, 'deck', NULL),
-(18, 5, 0, 'deck', NULL),
-(19, 6, 0, 'deck', NULL),
-(20, 7, 0, 'deck', NULL),
-(21, 8, 0, 'deck', NULL),
-(22, 9, 0, 'deck', NULL),
-(23, 10, 1, 'deck', NULL),
-(24, 11, 1, 'deck', NULL),
-(25, 12, 1, 'deck', NULL),
-(26, 13, 1, 'deck', NULL),
-(27, 1, 1, 'deck', NULL),
-(28, 2, 0, 'deck', NULL),
-(29, 3, 0, 'deck', NULL),
-(30, 4, 0, 'deck', NULL),
-(31, 5, 0, 'deck', NULL),
-(32, 6, 0, 'deck', NULL),
-(33, 7, 0, 'deck', NULL),
-(34, 8, 0, 'deck', NULL),
-(35, 9, 0, 'deck', NULL),
-(36, 10, 2, 'deck', NULL),
-(37, 11, 1, 'deck', NULL),
-(38, 12, 1, 'deck', NULL),
-(39, 13, 1, 'deck', NULL),
-(40, 1, 1, 'deck', NULL),
-(41, 2, 1, 'deck', NULL),
-(42, 3, 0, 'deck', NULL),
-(43, 4, 0, 'deck', NULL),
-(44, 5, 0, 'deck', NULL),
-(45, 6, 0, 'deck', NULL),
-(46, 7, 0, 'deck', NULL),
-(47, 8, 0, 'deck', NULL),
-(48, 9, 0, 'deck', NULL),
-(49, 10, 1, 'deck', NULL),
-(50, 11, 1, 'deck', NULL),
-(51, 12, 1, 'deck', NULL),
-(52, 13, 1, 'deck', NULL);
+INSERT INTO `board` (`card_id`, `c_value`, `c_score`, `c_position`) VALUES
+(1, 1, 1, 'deck'),
+(2, 2, 0, 'deck'),
+(3, 3, 0, 'deck'),
+(4, 4, 0, 'deck'),
+(5, 5, 0, 'deck'),
+(6, 6, 0, 'deck'),
+(7, 7, 0, 'deck'),
+(8, 8, 0, 'deck'),
+(9, 9, 0, 'deck'),
+(10, 10, 1, 'deck'),
+(11, 11, 1, 'deck'),
+(12, 12, 1, 'deck'),
+(13, 13, 1, 'deck'),
+(14, 1, 1, 'deck'),
+(15, 2, 0, 'deck'),
+(16, 3, 0, 'deck'),
+(17, 4, 0, 'deck'),
+(18, 5, 0, 'deck'),
+(19, 6, 0, 'deck'),
+(20, 7, 0, 'deck'),
+(21, 8, 0, 'deck'),
+(22, 9, 0, 'deck'),
+(23, 10, 1, 'deck'),
+(24, 11, 1, 'deck'),
+(25, 12, 1, 'deck'),
+(26, 13, 1, 'deck'),
+(27, 1, 1, 'deck'),
+(28, 2, 0, 'deck'),
+(29, 3, 0, 'deck'),
+(30, 4, 0, 'deck'),
+(31, 5, 0, 'deck'),
+(32, 6, 0, 'deck'),
+(33, 7, 0, 'deck'),
+(34, 8, 0, 'deck'),
+(35, 9, 0, 'deck'),
+(36, 10, 2, 'deck'),
+(37, 11, 1, 'deck'),
+(38, 12, 1, 'deck'),
+(39, 13, 1, 'deck'),
+(40, 1, 1, 'deck'),
+(41, 2, 1, 'deck'),
+(42, 3, 0, 'deck'),
+(43, 4, 0, 'deck'),
+(44, 5, 0, 'deck'),
+(45, 6, 0, 'deck'),
+(46, 7, 0, 'deck'),
+(47, 8, 0, 'deck'),
+(48, 9, 0, 'deck'),
+(49, 10, 1, 'deck'),
+(50, 11, 1, 'deck'),
+(51, 12, 1, 'deck'),
+(52, 13, 1, 'deck');
 
 -- --------------------------------------------------------
 
@@ -144,67 +131,66 @@ CREATE TABLE `board_empty` (
   `card_id` tinyint(4) NOT NULL,
   `c_value` tinyint(4) NOT NULL,
   `c_score` tinyint(4) NOT NULL,
-  `c_position` enum('deck','stack','hand1','hand2','won1','won2') COLLATE utf8mb4_bin NOT NULL DEFAULT 'deck',
-  `c_order` tinyint(4) DEFAULT NULL
+  `c_position` enum('deck','stack','hand1','hand2','won1','won2') COLLATE utf8mb4_bin NOT NULL DEFAULT 'deck'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 --
 -- Άδειασμα δεδομένων του πίνακα `board_empty`
 --
 
-INSERT INTO `board_empty` (`card_id`, `c_value`, `c_score`, `c_position`, `c_order`) VALUES
-(1, 1, 1, 'deck', NULL),
-(2, 2, 0, 'deck', NULL),
-(3, 3, 0, 'deck', NULL),
-(4, 4, 0, 'deck', NULL),
-(5, 5, 0, 'deck', NULL),
-(6, 6, 0, 'deck', NULL),
-(7, 7, 0, 'deck', NULL),
-(8, 8, 0, 'deck', NULL),
-(9, 9, 0, 'deck', NULL),
-(10, 10, 1, 'deck', NULL),
-(11, 11, 1, 'deck', NULL),
-(12, 12, 1, 'deck', NULL),
-(13, 13, 1, 'deck', NULL),
-(14, 1, 1, 'deck', NULL),
-(15, 2, 0, 'deck', NULL),
-(16, 3, 0, 'deck', NULL),
-(17, 4, 0, 'deck', NULL),
-(18, 5, 0, 'deck', NULL),
-(19, 6, 0, 'deck', NULL),
-(20, 7, 0, 'deck', NULL),
-(21, 8, 0, 'deck', NULL),
-(22, 9, 0, 'deck', NULL),
-(23, 10, 1, 'deck', NULL),
-(24, 11, 1, 'deck', NULL),
-(25, 12, 1, 'deck', NULL),
-(26, 13, 1, 'deck', NULL),
-(27, 1, 1, 'deck', NULL),
-(28, 2, 0, 'deck', NULL),
-(29, 3, 0, 'deck', NULL),
-(30, 4, 0, 'deck', NULL),
-(31, 5, 0, 'deck', NULL),
-(32, 6, 0, 'deck', NULL),
-(33, 7, 0, 'deck', NULL),
-(34, 8, 0, 'deck', NULL),
-(35, 9, 0, 'deck', NULL),
-(36, 10, 2, 'deck', NULL),
-(37, 11, 1, 'deck', NULL),
-(38, 12, 1, 'deck', NULL),
-(39, 13, 1, 'deck', NULL),
-(40, 1, 1, 'deck', NULL),
-(41, 2, 1, 'deck', NULL),
-(42, 3, 0, 'deck', NULL),
-(43, 4, 0, 'deck', NULL),
-(44, 5, 0, 'deck', NULL),
-(45, 6, 0, 'deck', NULL),
-(46, 7, 0, 'deck', NULL),
-(47, 8, 0, 'deck', NULL),
-(48, 9, 0, 'deck', NULL),
-(49, 10, 1, 'deck', NULL),
-(50, 11, 1, 'deck', NULL),
-(51, 12, 1, 'deck', NULL),
-(52, 13, 1, 'deck', NULL);
+INSERT INTO `board_empty` (`card_id`, `c_value`, `c_score`, `c_position`) VALUES
+(1, 1, 1, 'deck'),
+(2, 2, 0, 'deck'),
+(3, 3, 0, 'deck'),
+(4, 4, 0, 'deck'),
+(5, 5, 0, 'deck'),
+(6, 6, 0, 'deck'),
+(7, 7, 0, 'deck'),
+(8, 8, 0, 'deck'),
+(9, 9, 0, 'deck'),
+(10, 10, 1, 'deck'),
+(11, 11, 1, 'deck'),
+(12, 12, 1, 'deck'),
+(13, 13, 1, 'deck'),
+(14, 1, 1, 'deck'),
+(15, 2, 0, 'deck'),
+(16, 3, 0, 'deck'),
+(17, 4, 0, 'deck'),
+(18, 5, 0, 'deck'),
+(19, 6, 0, 'deck'),
+(20, 7, 0, 'deck'),
+(21, 8, 0, 'deck'),
+(22, 9, 0, 'deck'),
+(23, 10, 1, 'deck'),
+(24, 11, 1, 'deck'),
+(25, 12, 1, 'deck'),
+(26, 13, 1, 'deck'),
+(27, 1, 1, 'deck'),
+(28, 2, 0, 'deck'),
+(29, 3, 0, 'deck'),
+(30, 4, 0, 'deck'),
+(31, 5, 0, 'deck'),
+(32, 6, 0, 'deck'),
+(33, 7, 0, 'deck'),
+(34, 8, 0, 'deck'),
+(35, 9, 0, 'deck'),
+(36, 10, 2, 'deck'),
+(37, 11, 1, 'deck'),
+(38, 12, 1, 'deck'),
+(39, 13, 1, 'deck'),
+(40, 1, 1, 'deck'),
+(41, 2, 1, 'deck'),
+(42, 3, 0, 'deck'),
+(43, 4, 0, 'deck'),
+(44, 5, 0, 'deck'),
+(45, 6, 0, 'deck'),
+(46, 7, 0, 'deck'),
+(47, 8, 0, 'deck'),
+(48, 9, 0, 'deck'),
+(49, 10, 1, 'deck'),
+(50, 11, 1, 'deck'),
+(51, 12, 1, 'deck'),
+(52, 13, 1, 'deck');
 
 -- --------------------------------------------------------
 
@@ -218,7 +204,7 @@ CREATE TABLE `game_status` (
   `status` enum('not active','initialized','started','ended','aborted') COLLATE utf8mb4_bin NOT NULL DEFAULT 'not active',
   `p_turn` tinyint(4) DEFAULT NULL,
   `result` tinyint(4) DEFAULT NULL,
-  `last_change` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `last_change` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 --
@@ -226,7 +212,7 @@ CREATE TABLE `game_status` (
 --
 
 INSERT INTO `game_status` (`s_id`, `status`, `p_turn`, `result`, `last_change`) VALUES
-(1, 'not active', NULL, NULL, '2019-12-15 09:36:05');
+(1, 'not active', NULL, NULL, NULL);
 
 --
 -- Δείκτες `game_status`
@@ -248,18 +234,16 @@ DELIMITER ;
 DROP TABLE IF EXISTS `players`;
 CREATE TABLE `players` (
   `p_id` tinyint(4) NOT NULL,
-  `username` varchar(20) COLLATE utf8mb4_bin DEFAULT NULL,
-  `token` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL,
-  `last_action` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `username` varchar(20) COLLATE utf8mb4_bin DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 --
 -- Άδειασμα δεδομένων του πίνακα `players`
 --
 
-INSERT INTO `players` (`p_id`, `username`, `token`, `last_action`) VALUES
-(1, NULL, NULL, '2019-12-15 09:36:05'),
-(2, NULL, NULL, '2019-12-15 09:36:05');
+INSERT INTO `players` (`p_id`, `username`) VALUES
+(1, 'george'),
+(2, 'adam');
 
 --
 -- Ευρετήρια για άχρηστους πίνακες
