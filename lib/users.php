@@ -52,8 +52,12 @@ function set_user($username) {
 	$st->bind_param('s',$username);
 	$st->execute();
 	$res = $st->get_result();
+	$r = $res->fetch_all(MYSQLI_ASSOC);
+	if($r[0]['p_id']==2) {
+		deal_cards();
+	}
 	header('Content-type: application/json');
-	print json_encode($res->fetch_all(MYSQLI_ASSOC), JSON_PRETTY_PRINT);
+	print json_encode($r, JSON_PRETTY_PRINT);
 }
 
 //returns player's id associated with the token passed

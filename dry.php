@@ -18,7 +18,7 @@ switch ($r=array_shift($request)) {
                 switch ($b=array_shift($request)) {
                         case '':
                         case null:
-                                handle_board($method);
+                                handle_board($method, $input);
                                 break;
                         case 'card':
                                 handle_card($method, $request[0], $input);
@@ -53,10 +53,10 @@ switch ($r=array_shift($request)) {
 
 //function implementation
 
-function handle_board($method) {
+function handle_board($method, $input) {
         if($method=='GET')
-                show_board();
-        else if ($method=='POST')
+                show_board($input);
+        else if($method=='POST')
                 reset_board();
         else {
                 header("HTTP/1.1 400 Bad Request");
@@ -86,7 +86,7 @@ function handle_user($method, $b) {
 
 function handle_card($method, $x, $input) {
         if($method=='PUT')
-                play_card($x, $input);
+                play_card($x, $input['token']);
         else {
                 header("HTTP/1.1 400 Bad Request");
                 print json_encode(['errormesg'=>"Method $method not allowed."]);

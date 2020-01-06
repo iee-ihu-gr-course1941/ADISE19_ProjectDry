@@ -1,5 +1,7 @@
-var me={};
+var me={token:null};
 var game_status={};
+var last_update=new Date().getTime();
+var timer=null;
 
 $(function () {
 	fill_board();
@@ -24,18 +26,20 @@ function fill_board() {
 }
 
 function fill_board_by_data(data) {
+	var img='<div class="cards">';
 	for(var i=0; i<data.length; i++) {
 		var o = data[i];
-		var img;
-		if(o.c_position=='hand1') {
-			img = '<img id="'+o.card_id+'" src="img/'+o.card_id+'.png">';
-			$('#viewer').append(img);
+		var viewer_hand = 'hand'+me.p_id;
+		if(o.c_position==viewer_hand) {
+			img += '<img id="'+o.card_id+'" src="img/'+o.card_id+'.png">';
+			$('#viewer').html(img);
 		}
 		else {
 			img = '<img src="img/'+o.card_id+'.png">';
 			$('#stack').append(img);
 		}
 	}
+	img+='</div>';
 }
 
 function login_to_game() {
@@ -55,6 +59,9 @@ function login_to_game() {
 
 function login_result(data) {
 	me = data[0];
+	if(me.p_id==2) {
+		fill_board();
+	}
 	$('#loginForm').hide();
 	update_info();
 	game_status_update();
@@ -75,21 +82,25 @@ function update_info(){
 }
 
 function game_status_update() {
+	clearTimeout(timer);
 	$.ajax({url: "dry.php/status/",
 			headers: {"X-Token": me.token},
 			success: update_status });
 }
 
 function update_status(data) {
+	last_update = new Date().getTime();
+	var game_stat_old = game_status;
 	game_status=data[0];
 	update_info();
-	if(game_status.status=='started') {
-		fill_board();
-	}
+	clearTimeout(timer);
 	if(game_status.p_turn==me.p_id) {
-		setTimeout(function() { game_status_update();}, 15000);
+		if(game_stat_old.p_turn != game_status.p_turn) {
+			fill_board();
+		}
+		timer = setTimeout(function() {game_status_update();}, 15000);
 	} else {
-		setTimeout(function() { game_status_update();}, 4000);
+		timer = setTimeout(function() { game_status_update();}, 4000);
 	}
 }
 

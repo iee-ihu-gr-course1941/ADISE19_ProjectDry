@@ -6,18 +6,11 @@ $cards = array(1,2,3,4,5,6,7,8,9,10,11,12,13,
 					27,28,29,30,31,32,33,34,35,36,37,38,39,
 					40,41,42,43,44,45,46,47,48,49,50,51,52);
 
-
-//function implementation
-
-function show_board() { #show cards of viewer's hand and stack
+function show_board($input) {
 	global $mysqli;
 	
-	$sql = "select * from board where c_position in('hand1','stack')";
-	$st = $mysqli->prepare($sql);
-	$st->execute();
-	$res = $st->get_result();
-	header('Content-type: application/json');
-	print json_encode($res->fetch_all(MYSQLI_ASSOC), JSON_PRETTY_PRINT);
+	$player_id=current_player($input['token']);
+	show_board_by_player($player_id);
 }
 
 function reset_board() {
@@ -25,7 +18,32 @@ function reset_board() {
 	
 	$sql = 'call clean_board()';
 	$mysqli->query($sql);
-	show_board();
+}
+
+function read_hand($player_id) {
+	global $mysqli;
+
+	$position = 'hand' . $player_id;
+	$sql = 'select * from board where c_position=?';
+	$st = $mysqli->prepare($sql);
+	$st->bind_param('s',$position);
+	$st->execute();
+	$res = $st->get_result();
+	return($res->fetch_all(MYSQLI_ASSOC));
+}
+
+function show_board_by_player($player_id) {
+	global $mysqli;
+
+	/*$status = read_status();
+	if($status['status']=='started' && $status['p_turn']==$player_id && $player_id!=null) {
+		// Εάν n==0, τότε έχασα !!!!!
+		// Θα πρέπει να ενημερωθεί το game_status.
+	}*/
+
+	$hand = read_hand($player_id);
+	header('Content-type: application/json');
+	print json_encode($hand, JSON_PRETTY_PRINT);
 }
 
 function shuffle_deck() { #set card order according to shuffled $cards array
@@ -46,10 +64,12 @@ function deal_cards() {
 	shuffle_deck();
 	$sql = "call deal_cards(6,'hand1')";
 	$mysqli->query($sql);
-	show_board();
+	$sql = "call deal_cards(6,'hand2')";
+	$mysqli->query($sql);
 }
 
-function play_card($x,$token) { #play card with id $x
+//play the card with the passed id
+function play_card($id,$token) {
 	global $mysqli;
 
 	if($token==null || $token=='') {
@@ -58,11 +78,43 @@ function play_card($x,$token) { #play card with id $x
 		exit;
 	}
 
+	$player_id = current_player($token);
+	if($player_id==null) {
+		header("HTTP/1.1 400 Bad Request");
+		print json_encode(['errormesg'=>"You are not a player of this game."]);
+		exit;
+	}
+
+	$status = read_status();
+	if($status['status']!='started') {
+		header("HTTP/1.1 400 Bad Request");
+		print json_encode(['errormesg'=>"Game is not in action."]);
+		exit;
+	}
+	if($status['p_turn']!=$player_id) {
+		header("HTTP/1.1 400 Bad Request");
+		print json_encode(['errormesg'=>"It is not your turn."]);
+		exit;
+	}
+
+	$player_hand = read_hand($player_id);
+	$cards = [];
+	$i=0;
+	foreach($player_hand as $row) {
+		$cards[$i++] = $row['card_id'];
+	}
+	if(!in_array($id, $cards)) {
+		header("HTTP/1.1 400 Bad Request");
+		print json_encode(['errormesg'=>"This card is not in your hand."]);
+		exit;
+	}
+
 	$sql = 'call play_card(?);';
 	$st = $mysqli->prepare($sql);
-	$st->bind_param('i',$x);
+	$st->bind_param('i',$id);
 	$st->execute();
 
+	show_board_by_player($player_id);
 }
 
 ?>

@@ -72,6 +72,7 @@ function update_game_status() {
 				if($status['p_turn']==null) {
 					$new_turn=1;
 				}
+				break;
 	}
 	$sql = 'update game_status set status=?, p_turn=?';
 	$st = $mysqli->prepare($sql);
