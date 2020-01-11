@@ -1,3 +1,7 @@
 body {
     background-color: #21823b;
 }
+
+#board > div {
+    height: 140px;
+}
