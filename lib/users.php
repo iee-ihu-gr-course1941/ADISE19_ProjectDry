@@ -39,9 +39,7 @@ function set_user($username) {
 	}
 
 	$sql = 'update players set username=?, token=md5(CONCAT( ?, NOW())) where p_id in (
-			select p.p_id from players as p
-			inner join (select p_id from players where username is null limit 1) as p2
-			on p.p_id=p2.p_id)';
+			select p_id from (select p_id from players where username is null limit 1) as x)';
 	$st2 = $mysqli->prepare($sql);
 	$st2->bind_param('ss',$username,$username);
 	$st2->execute();

@@ -5,3 +5,40 @@ body {
 #board > div {
     height: 140px;
 }
+
+#viewer img:hover {
+    position: relative;
+    top: -20px;  
+}
+
+.card1 {
+    position: relative;
+    left: -50px;
+}
+
+.card2 {
+    position: relative;
+    left: -100px;
+}
+
+.card3 {
+    position: relative;
+    left: -150px;
+}
+
+.card4 {
+    position: relative;
+    left: -200px;
+}
+
+.card5 {
+    position: relative;
+    left: -250px;
+}
+
+#stack {
+    padding-left: 150px;
+}
+#stack img {
+    position: absolute;
+}

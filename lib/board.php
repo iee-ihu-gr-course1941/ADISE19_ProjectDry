@@ -20,6 +20,7 @@ function reset_board() {
 	$mysqli->query($sql);
 }
 
+//returns the cards of the stack and the hand of the passed player's id
 function read_hand($player_id) {
 	global $mysqli;
 
@@ -32,6 +33,7 @@ function read_hand($player_id) {
 	return($res->fetch_all(MYSQLI_ASSOC));
 }
 
+//returns the top card of the stack
 function read_top_card() {
 	global $mysqli;
 
@@ -42,6 +44,7 @@ function read_top_card() {
 	return($res->fetch_assoc()['c_value']);
 }
 
+//returns the size of the stack
 function count_stack_cards() {
 	global $mysqli;
 
@@ -55,18 +58,13 @@ function count_stack_cards() {
 function show_board_by_player($player_id) {
 	global $mysqli;
 
-	/*$status = read_status();
-	if($status['status']=='started' && $status['p_turn']==$player_id && $player_id!=null) {
-		// Εάν n==0, τότε έχασα !!!!!
-		// Θα πρέπει να ενημερωθεί το game_status.
-	}*/
-
 	$hand = read_hand($player_id);
 	header('Content-type: application/json');
 	print json_encode($hand, JSON_PRETTY_PRINT);
 }
 
-function shuffle_deck() { #set card order according to shuffled $cards array
+//set card order according to the shuffled $cards array
+function shuffle_deck() {
 	global $mysqli;
 	global $cards;
 	shuffle($cards);
@@ -78,6 +76,7 @@ function shuffle_deck() { #set card order according to shuffled $cards array
 	}
 }
 
+//deal cards on the first round
 function deal_cards() {
 	global $mysqli;
 
@@ -89,11 +88,13 @@ function deal_cards() {
 	$sql = "call deal_cards(6,'hand2')";
 	$mysqli->query($sql);
 
-	$sql = "update board set c_position='top' where card_id in (select max(card_id) from board where c_position='stack')";
+	$sql = "update board set c_position='top' where card_id in
+			(select max(card_id) from (select card_id from board where c_position='stack') as x)";
 	$st = $mysqli->prepare($sql);
 	$st->execute();
 }
 
+//deal cards on every round except the first
 function deal_again() {
 	global $mysqli;
 
@@ -103,6 +104,7 @@ function deal_again() {
 	$mysqli->query($sql);
 }
 
+//count the score at the end of the game
 function count_score() {
 	global $mysqli;
 	$player1_total_score=0;

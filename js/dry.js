@@ -7,7 +7,6 @@ var opp_cards=6;
 $(function () {
 	fill_board();
 	$('#loginButton').click(login_to_game);
-	$('#make_move').click(do_move);
 	$('#reset').click(reset_board);
 	game_status_update();
 });
@@ -30,7 +29,7 @@ function fill_board_by_data(data) {
 	var img='<div class="cards">';
 	var img2='<div class="cards">';
 	var img3='<div class="cards">';
-	var vCounter=0, sCounter=0;
+	var vCounter=0, sCounter=0, topId=0;
 	if(opp_cards==0) {
 		opp_cards=6;
 	}
@@ -39,7 +38,7 @@ function fill_board_by_data(data) {
 			$('#opponent').html('');
 		}
 		for(var i=0; i<opp_cards; i++) {
-			img3 += '<img src="img/0.png">';
+			img3 += '<img class="card'+i+'" src="img/0.png">';
 			$('#opponent').html(img3);
 		}
 	}
@@ -47,15 +46,28 @@ function fill_board_by_data(data) {
 		var o = data[i];
 		var viewer_hand = 'hand'+me.p_id;
 		if(o.c_position==viewer_hand) {
-			img += '<img id="'+o.card_id+'" src="img/'+o.card_id+'.png">';
+			img += '<img class="card'+vCounter+'" id="c'+o.card_id+'" src="img/'+o.card_id+'.png">';
 			$('#viewer').html(img);
 			vCounter++;
 		}
 		else if(o.c_position=='stack' || o.c_position=='top') {
-			img2 += '<img src="img/'+o.card_id+'.png">';
-			$('#stack').html(img2);
+			if(o.c_position=='top') {
+				topId=o.card_id;
+			}
+			else {
+				if(sCounter/2==1) {
+					img2 += '<img style="transform: rotate('+sCounter*(-10)+'deg)" src="img/'+o.card_id+'.png">';
+				}
+				else {
+					img2 += '<img style="transform: rotate('+sCounter*10+'deg)" src="img/'+o.card_id+'.png">';
+				}
+			}
 			sCounter++;
 		}
+	}
+	if(topId>0) {
+		img2 += '<img style="transform: rotate('+topId*10+'deg)" src="img/'+topId+'.png">';
+		$('#stack').html(img2);
 	}
 	if(vCounter==0) {
 		$('#viewer').html('');
@@ -66,6 +78,8 @@ function fill_board_by_data(data) {
 	img+='</div>';
 	img2+='</div>';
 	img3+='</div>';
+
+	$('#viewer img').click(click_on_card);
 }
 
 function login_to_game() {
@@ -118,8 +132,15 @@ function update_status(data) {
 	last_update = new Date().getTime();
 	var game_stat_old = game_status;
 	game_status=data[0];
+	winnerId = game_status.result;
 	update_info();
 	clearTimeout(timer);
+	if(game_status.status=='ended') {
+		$.ajax({url: "dry.php/players/"+winnerId,
+			headers: {"X-Token": me.token},
+			success: alert_winner });
+		return;
+	}
 	if(game_status.p_turn==me.p_id) {
 		if(game_stat_old.p_turn != game_status.p_turn) {
 			if(game_stat_old.status != 'initialized') {
@@ -127,14 +148,20 @@ function update_status(data) {
 			}
 			fill_board();
 		}
-		timer = setTimeout(function() {game_status_update();}, 10000);
+		timer = setTimeout(function() {game_status_update();}, 2000);
 	} else {
 		timer = setTimeout(function() { game_status_update();}, 2000);
 	}
 }
 
-function do_move() {
-	var card_id = $('#move').val();
+function alert_winner(data) {
+	winner = data[0].username;
+	alert('Player ' + winner + ' wins!');
+}
+
+function click_on_card(e) {
+	var target = e.target;
+	var card_id = target.id.slice(1);
 	$.ajax({url: "dry.php/board/card/"+card_id, 
 			method: 'PUT',
 			dataType: "json",
