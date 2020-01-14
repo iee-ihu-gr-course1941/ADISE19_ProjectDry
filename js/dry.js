@@ -3,9 +3,11 @@ var game_status={};
 var last_update=new Date().getTime();
 var timer=null;
 var opp_cards=6;
+var deckColor='';
 
 $(function () {
 	fill_board();
+	$('#reset').hide();
 	$('#loginButton').click(login_to_game);
 	$('#reset').click(reset_board);
 	game_status_update();
@@ -16,6 +18,7 @@ function reset_board() {
 			headers: {"X-Token": me.token},
 			method: 'POST',
 			success: fill_board_by_data });
+	location.reload();
 }
 
 function fill_board() {
@@ -26,6 +29,7 @@ function fill_board() {
 }
 
 function fill_board_by_data(data) {
+	$('#waitDiv').hide();
 	var img='<div class="cards">';
 	var img2='<div class="cards">';
 	var img3='<div class="cards">';
@@ -34,11 +38,12 @@ function fill_board_by_data(data) {
 		opp_cards=6;
 	}
 	if(data.length>0) {
+		$('#reset').show();
 		if(opp_cards==0) {
 			$('#opponent').html('');
 		}
 		for(var i=0; i<opp_cards; i++) {
-			img3 += '<img class="card'+i+'" src="img/0.png">';
+			img3 += '<img class="card'+i+'" src="img/'+deckColor+'.png">';
 			$('#opponent').html(img3);
 		}
 	}
@@ -73,7 +78,7 @@ function fill_board_by_data(data) {
 		$('#viewer').html('');
 	}
 	if(sCounter==0) {
-		$('#stack').html('');
+		$('#stack').html('<div class="cards"></div>');
 	}
 	img+='</div>';
 	img2+='</div>';
@@ -83,6 +88,7 @@ function fill_board_by_data(data) {
 }
 
 function login_to_game() {
+	deckColor = $("input[name='deckColor']:checked").val();
 	var username = $('#username').val();
 	if(username=='') {
 		alert('You have to set a username');
@@ -99,6 +105,9 @@ function login_to_game() {
 
 function login_result(data) {
 	me = data[0];
+	if(me.p_id==1) {
+		$('#waitDiv').show();
+	}
 	if(me.p_id==2) {
 		fill_board();
 	}
