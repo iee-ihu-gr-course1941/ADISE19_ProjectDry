@@ -6,6 +6,8 @@ body {
 
 h1 {
     font-family: 'IBM Plex Sans', sans-serif;
+    display: inline-block;
+    margin-right: 10px;
 }
 
 p{
@@ -13,8 +15,13 @@ p{
     font-size: 1.2em;
 }
 
-#reset {
+#reset, #loginButton {
     border-radius: 40%;
+    padding: 4px 8px;
+}
+
+#reset {
+    background-color: #fc4949;
 }
 
 #waitGif {
@@ -28,7 +35,7 @@ p{
 
 img {
     width: 100px;
-    height: 135px;
+    height: 125px;
 }
 
 #viewer img:hover {

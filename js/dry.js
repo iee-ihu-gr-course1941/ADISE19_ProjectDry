@@ -5,8 +5,12 @@ var timer=null;
 var opp_cards=6;
 var deckColor='';
 
+window.addEventListener('beforeunload', function (e) {
+	reset_board();
+  });
+
 $(function () {
-	fill_board();
+	$('#waitDiv').hide();
 	$('#reset').hide();
 	$('#loginButton').click(login_to_game);
 	$('#reset').click(reset_board);
@@ -30,6 +34,7 @@ function fill_board() {
 
 function fill_board_by_data(data) {
 	$('#waitDiv').hide();
+	$('#reset').show();
 	var img='<div class="cards">';
 	var img2='<div class="cards">';
 	var img3='<div class="cards">';
@@ -38,7 +43,6 @@ function fill_board_by_data(data) {
 		opp_cards=6;
 	}
 	if(data.length>0) {
-		$('#reset').show();
 		if(opp_cards==0) {
 			$('#opponent').html('');
 		}
@@ -51,7 +55,7 @@ function fill_board_by_data(data) {
 		var o = data[i];
 		var viewer_hand = 'hand'+me.p_id;
 		if(o.c_position==viewer_hand) {
-			img += '<img class="card'+vCounter+'" id="c'+o.card_id+'" src="img/'+o.card_id+'.png">';
+			img += '<img class="card'+vCounter+'" id="c'+o.card_id+'" src="img/'+o.card_id+'.svg">';
 			$('#viewer').html(img);
 			vCounter++;
 		}
@@ -61,17 +65,17 @@ function fill_board_by_data(data) {
 			}
 			else {
 				if(sCounter/2==1) {
-					img2 += '<img style="transform: rotate('+sCounter*(-10)+'deg)" src="img/'+o.card_id+'.png">';
+					img2 += '<img style="transform: rotate('+sCounter*(-10)+'deg)" src="img/'+o.card_id+'.svg">';
 				}
 				else {
-					img2 += '<img style="transform: rotate('+sCounter*10+'deg)" src="img/'+o.card_id+'.png">';
+					img2 += '<img style="transform: rotate('+sCounter*10+'deg)" src="img/'+o.card_id+'.svg">';
 				}
 			}
 			sCounter++;
 		}
 	}
 	if(topId>0) {
-		img2 += '<img style="transform: rotate('+topId*10+'deg)" src="img/'+topId+'.png">';
+		img2 += '<img style="transform: rotate('+topId*10+'deg)" src="img/'+topId+'.svg">';
 		$('#stack').html(img2);
 	}
 	if(vCounter==0) {

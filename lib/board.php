@@ -222,7 +222,13 @@ function play_card($id,$token) {
 	$stack_cards = count_stack_cards();
 
 	if($top_card_value==$play_card_value || $play_card_value==11) {
-		if($stack_cards == 0) {
+		if($play_card_value==11 && $top_card_value=='') {
+			$sql = 'call play_card(?);';
+			$st = $mysqli->prepare($sql);
+			$st->bind_param('i',$id);
+			$st->execute();
+		}
+		else if($stack_cards == 0) {
 			$sql = 'call win_dry(?,?);';
 			$st = $mysqli->prepare($sql);
 			$st->bind_param('ii',$player_id,$id);
